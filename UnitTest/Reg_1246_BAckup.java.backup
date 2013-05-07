@@ -1,0 +1,167 @@
+
+
+import static org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable.syncExec;
+import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widgetOfType;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.shellCloses;
+import static org.eclipse.swtbot.swt.finder.waits.Conditions.waitForShell;
+
+import java.awt.AWTException;
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+import java.util.List;
+
+import junit.framework.Assert;
+
+import org.eclipse.jface.bindings.keys.KeyStroke;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
+
+import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.keyboard.Keyboard;
+import org.eclipse.swtbot.swt.finder.keyboard.KeyboardFactory;
+import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
+
+import org.eclipse.swtbot.swt.finder.results.Result;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
+import org.eclipse.swtbot.swt.finder.waits.ICondition;
+import org.eclipse.swtbot.swt.finder.widgets.AbstractSWTBot;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.GS.Perspective.WorkBench.ConfigureOrchestratorView;
+import com.GS.SWTBot.Helper.Utils.TreeViewWidgetBot;
+import com.GS.Window.Preferences.Preferences;
+import com.GS.WorkBench.Application.AppServerConnection;
+import com.GS.WorkBench.Application.WorkFlow;
+import com.GS.WorkBench.Application.Dialogs.RunWorkFlow;
+
+@RunWith(SWTBotJunit4ClassRunner.class)
+public class Reg_1246_BAckup {
+	  public WorkFlow workflow=new WorkFlow();
+	   	@BeforeClass
+	public static void setPreValues() throws Exception
+	{    
+	   	
+		// slow down tests
+		SWTBotPreferences.PLAYBACK_DELAY =50;
+		SWTBotPreferences.TIMEOUT = 50000;
+		
+		
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void CreteNewApplicationServerAfterProvidingPreferencesValues() throws Exception
+	{
+		ConfigureOrchestratorView configView = new ConfigureOrchestratorView();
+		//Open Perspective 
+		configView.openConfigureOrchestratorPrespective();
+		//Open Preferences and Change the File Path for Weblogic and Oracle
+		Preferences preferences = new Preferences();
+		preferences.addApplicationServerJARfileinPreferences("WEBLOGIC","C:/Users/pgaria/Documents/weblogic.jar");
+		preferences.addClientInstallationPathForDataBase("C:/oracle/product/11.2.0/client_1");
+		//Create New Connection 
+		AppServerConnection appserver = new AppServerConnection();
+		//appserver.FindAppServerConnection("WEBLOGIC","Orchestrator Configuration Explorer");
+		appserver.getConnection("WEBLOGIC", "Orchestrator Configuration Explorer");
+		System.out.println("DONe");
+			                    
+	}
+	
+	
+	public void CreateNewApplicationConnectionWithCustomPropertyFile() throws Exception
+	{
+		ConfigureOrchestratorView configView = new ConfigureOrchestratorView();
+		//Open Perspective 
+		configView.openConfigureOrchestratorPrespective();
+				
+		//Create New Connection 
+		AppServerConnection appserver = new AppServerConnection();
+		//Delete the Connection Profile
+		appserver.deleteConnectionProfile("WEBLOGIC", "Orchestrator Configuration Explorer");
+		
+		//appserver.FindAppServerConnection("WEBLOGIC","Orchestrator Configuration Explorer");
+		appserver.getConnection("WEBLOGIC", "Orchestrator Configuration Explorer","E:\\CEN_Framework\\workbench8.4.1\\workspace\\com.GoldenSource.CEN.Automation_Ver2\\TestData\\TestEnvConfig.properties");
+		System.out.println("DONe");
+		
+	
+	}
+	
+	@Test
+	public void SelectStandardFileWorkFlowTest() throws Exception
+	{
+		//new WorkFlow().runWK();
+		workflow.selectWorkFlow("Orchestrator Configuration Explorer","Standard","Standard File Load");
+		
+	}
+	@Test
+	public void SelectBloomBergBackOfficeWorkFlowTest() throws Exception
+	{
+		//new WorkFlow().runWK();
+		workflow.selectWorkFlow("Orchestrator Configuration Explorer","Batch Connections","Bloomberg","Bloomberg Back Office");
+		
+	}
+    
+	
+	public void openRunWorkFlowForStandardFileWorkFlowTest() throws Exception
+	{
+		//TO Do...
+		//We can put this code inside the ConfigureOrchestrator.java
+		workflow.selectWorkFlow("Orchestrator Configuration Explorer","Standard","Standard File Load");
+		RunWorkFlow runWorkflow = workflow.getContextManuItem().RunsTheLatestReleasedWorkflow();
+		Assert.assertTrue(runWorkflow.isCancelButtonEnabled());
+		runWorkflow.clickCancelButton();
+	}
+	
+	
+	public void EnterValuesStandardFileWorkFlowInRunWorkFlowDialogTest() throws Exception
+	{
+		
+		workflow.selectWorkFlow("Orchestrator Configuration Explorer","Standard","Standard File Load");
+		RunWorkFlow runWorkflow = workflow.getContextManuItem().RunsTheLatestReleasedWorkflow();
+		runWorkflow.EnterFileName("db://resource/QA/StandardMessageFile.txt");
+		runWorkflow.EnterMessageType("BBGlobalEquity");
+		Assert.assertTrue(runWorkflow.isOKButtonEnabled());
+		Assert.assertTrue(runWorkflow.isCancelButtonEnabled());
+		runWorkflow.clickCancelButton();
+	}
+	
+	
+	@Test
+	public void SelectValueOfComboBoxInRunWorkFlowDialogTest() throws Exception
+	{
+		
+		workflow.selectWorkFlow("Orchestrator Configuration Explorer","Standard","Standard File Load");
+		RunWorkFlow runWorkflow = workflow.getContextManuItem().RunsTheLatestReleasedWorkflow();
+		runWorkflow.EnterFileName("db://resource/QA/StandardMessageFile.txt");
+		runWorkflow.EnterMessageType("BBGlobalEquity");
+		runWorkflow.SelectValusInCellFromDropDown("SuccessAction","DELETE");
+		Assert.assertTrue(runWorkflow.isOKButtonEnabled());
+		Assert.assertTrue(runWorkflow.isCancelButtonEnabled());
+		runWorkflow.clickCancelButton();
+	}
+	
+}
+		
+
+	
